@@ -40,41 +40,31 @@ export const getSymbolByCategory = (category: string): string => {
 };
 
 export const groupByPeriod = (data: Transaction[], period: string) => {
-  const periods: Record<string, any[]> = {};
-
-  // Helper function to get the ISO week number
-  const getISOWeek = (date: Date) => {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear =
-      (date.getTime() - firstDayOfYear.getTime()) / 86400000;
-    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-  };
-
+  const periods: any = {};
   data.forEach((item) => {
-    const date = new Date(item.date);
     let key: string;
-
     switch (period) {
       case "week":
-        const weekNumber = getISOWeek(date);
-        key = `${date.getFullYear()}-W${weekNumber}`;
+        const date = new Date(item.date);
+        const startOfWeek = new Date(
+          date.setDate(date.getDate() - date.getDay())
+        );
+        key = `${startOfWeek.getFullYear()}-W${Math.ceil((date.getDate() + 1) / 7)}`;
         break;
       case "day":
-        key = date.toISOString().split("T")[0]; // Solo la fecha en formato YYYY-MM-DD
+        key = item.date.split("T")[0]; // Solo la fecha sin hora
         break;
       case "month":
       default:
-        key = `${date.getFullYear()}-${(date.getMonth() + 1)
-          .toString()
-          .padStart(2, "0")}`; // Año y mes en formato YYYY-MM
+        key = item.date.slice(0, 7); // Año y mes
     }
 
     if (!periods[key]) {
-      periods[key] = [];
+      periods[key] = { total: 0, count: 0 };
     }
-    periods[key].push(item);
+    periods[key].total += item.value;
+    periods[key].count += 1;
   });
-
   return periods;
 };
 
@@ -99,9 +89,13 @@ export const filterDataByPeriod = (data: Transaction[], period: string) => {
     const date = new Date(item.date);
     switch (period) {
       case "week":
+        const weekStart = new Date(
+          date.setDate(date.getDate() - date.getDay())
+        );
         const week = Math.ceil(date.getDate() / 7);
         return date.toISOString().includes(`-W${week}`);
       case "day":
+        // Asegúrate de que la fecha esté en el formato YYYY-MM-DD sin la hora
         return (
           item.date.split("T")[0] === new Date().toISOString().split("T")[0]
         );

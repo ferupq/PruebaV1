@@ -124,7 +124,12 @@ const AboutSection: React.FC = () => {
         type: "datetime",
         title: { text: "Date" },
         labels: {
-          format: "{value:%Y-%m-%d}",
+          format:
+            selectedPeriod === "day"
+              ? "{value:%Y-%m-%d}"
+              : selectedPeriod === "week"
+                ? "{value:%Y-W%U}"
+                : "{value:%Y-%m}",
           style: { fontSize: "0.9rem" },
         },
       },
@@ -147,7 +152,12 @@ const AboutSection: React.FC = () => {
         type: "datetime",
         title: { text: "Date" },
         labels: {
-          format: "{value:%Y-%m-%d}",
+          format:
+            selectedPeriod === "day"
+              ? "{value:%Y-%m-%d}"
+              : selectedPeriod === "week"
+                ? "{value:%Y-W%U}"
+                : "{value:%Y-%m}",
           style: { fontSize: "0.9rem" },
         },
       },
@@ -203,7 +213,12 @@ const AboutSection: React.FC = () => {
         type: "datetime",
         title: { text: "Date" },
         labels: {
-          format: "{value:%Y-%m-%d}",
+          format:
+            selectedPeriod === "day"
+              ? "{value:%Y-%m-%d}"
+              : selectedPeriod === "week"
+                ? "{value:%Y-W%U}"
+                : "{value:%Y-%m}",
           style: { fontSize: "0.9rem" },
         },
       },
@@ -302,9 +317,9 @@ const AboutSection: React.FC = () => {
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
           >
+            <option value="day">Daily</option>
             <option value="week">Weekly</option>
             <option value="month">Monthly</option>
-            <option value="year">Yearly</option>
           </select>
         </div>
         <HighchartsReact highcharts={Highcharts} options={chartOptions} />

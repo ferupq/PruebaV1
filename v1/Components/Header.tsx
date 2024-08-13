@@ -24,7 +24,7 @@ export default function Header() {
 
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const sections = ["home", "about", "services", "testimonials", "contact"];
+      const sections = ["home", "charts", "services", "testimonials", "emails"];
 
       sections.forEach((section) => {
         const element = document.getElementById(section);
@@ -82,20 +82,20 @@ export default function Header() {
     switch (activeSection) {
       case "home":
         return "text-white";
-      case "about":
+      case "charts":
         return "text-black";
       case "services":
         return "text-blue-500";
       case "testimonials":
         return "text-green-500";
-      case "contact":
+      case "emails":
         return "text-yellow-500";
       default:
         return "text-white";
     }
   };
 
-  type Section = "home" | "about" | "services" | "testimonials" | "contact";
+  type Section = "home" | "charts" | "services" | "testimonials" | "emails";
 
   return (
     <>
@@ -116,14 +116,14 @@ export default function Header() {
                   text: "Home",
                 },
                 {
-                  href: "#about",
+                  href: "#charts",
                   icon: <FaInfoCircle className="text-xl" />,
-                  text: "About",
+                  text: "Charts",
                 },
                 {
-                  href: "#contact",
+                  href: "#emails",
                   icon: <BsMailbox2Flag className="text-xl" />,
-                  text: "Contact",
+                  text: "Emails",
                 },
               ].map(({ href, icon, text }) => (
                 <a
@@ -177,8 +177,8 @@ export default function Header() {
               icon: <HiHome className="text-3xl" />,
             },
             {
-              href: "#about",
-              text: "About",
+              href: "#charts",
+              text: "Charts",
               icon: <FaInfoCircle className="text-3xl" />,
             },
             {
@@ -192,8 +192,8 @@ export default function Header() {
               icon: <FaInfoCircle className="text-3xl" />,
             },
             {
-              href: "#contact",
-              text: "Contact",
+              href: "#emails",
+              text: "Emails",
               icon: <BsMailbox2Flag className="text-3xl" />,
             },
           ].map(({ href, text, icon }) => (
