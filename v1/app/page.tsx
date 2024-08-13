@@ -19,7 +19,6 @@ import Footer from "@/Components/Footer";
 import Header from "@/Components/Header";
 import HeroSection from "@/Components/HeroSection";
 import ServicesSection from "@/Components/ServicesSection";
-import TestimonialsSection from "@/Components/TestimonialsSection";
 
 const Home = () => {
   const { ref: heroRef, inView: heroInView } = useInView({
@@ -43,8 +42,6 @@ const Home = () => {
         <AboutSection />
 
         <ServicesSection />
-
-        <TestimonialsSection />
 
         <ContactSection />
       </main>

@@ -24,7 +24,7 @@ export default function Header() {
 
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const sections = ["home", "charts", "services", "testimonials", "emails"];
+      const sections = ["home", "charts", "emails"];
 
       sections.forEach((section) => {
         const element = document.getElementById(section);
@@ -84,10 +84,6 @@ export default function Header() {
         return "text-white";
       case "charts":
         return "text-black";
-      case "services":
-        return "text-blue-500";
-      case "testimonials":
-        return "text-green-500";
       case "emails":
         return "text-yellow-500";
       default:
@@ -95,7 +91,7 @@ export default function Header() {
     }
   };
 
-  type Section = "home" | "charts" | "services" | "testimonials" | "emails";
+  type Section = "home" | "charts" | "emails";
 
   return (
     <>
@@ -179,16 +175,6 @@ export default function Header() {
             {
               href: "#charts",
               text: "Charts",
-              icon: <FaInfoCircle className="text-3xl" />,
-            },
-            {
-              href: "#services",
-              text: "Services",
-              icon: <HiHome className="text-3xl" />,
-            },
-            {
-              href: "#testimonials",
-              text: "Testimonials",
               icon: <FaInfoCircle className="text-3xl" />,
             },
             {
