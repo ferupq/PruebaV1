@@ -1,0 +1,44 @@
+{
+  "name": "castillo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.1.5",
+    "@sanity/icons": "^3.3.1",
+    "@sanity/image-url": "^1.0.2",
+    "@sanity/vision": "^3.53.0",
+    "aws-lambda": "^1.0.7",
+    "aws-sdk": "^2.1673.0",
+    "axios": "^1.7.3",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "framer-motion": "^11.3.24",
+    "highcharts": "^11.4.6",
+    "highcharts-react-official": "^3.2.1",
+    "multer": "^1.4.5-lts.1",
+    "next": "14.2.5",
+    "next-sanity": "^9.4.5",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^5.2.1",
+    "react-intersection-observer": "^9.13.0",
+    "react-modal": "^3.16.1",
+    "sanity": "^3.53.0",
+    "styled-components": "^6.1.12"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.143",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
