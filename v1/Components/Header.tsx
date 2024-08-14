@@ -13,7 +13,7 @@ export default function Header() {
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("");
-  const [metaColor, setMetaColor] = useState("#0088f0"); // Color inicial del meta tag
+  const [metaColor, setMetaColor] = useState("#030617"); // Color inicial del meta tag
 
   const controls = useAnimationControls();
 
@@ -24,7 +24,7 @@ export default function Header() {
 
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const sections = ["home", "charts", "emails"];
+      const sections = ["home", "about", "services", "testimonials", "email"];
 
       sections.forEach((section) => {
         const element = document.getElementById(section);
@@ -65,7 +65,7 @@ export default function Header() {
         opacity: 0,
         transition: { duration: 0.6, ease: [0.08, 0.65, 0.53, 0.96] },
       });
-      setMetaColor("#0088f0"); // Restablecer el color del meta tag cuando el menú no está visible
+      setMetaColor("#030617"); // Restablecer el color del meta tag cuando el menú no está visible
     }
   }, [isMenuVisible, controls]);
 
@@ -82,24 +82,29 @@ export default function Header() {
     switch (activeSection) {
       case "home":
         return "text-white";
-      case "charts":
+      case "about":
         return "text-black";
-      case "emails":
+      case "services":
+        return "text-blue-500";
+      case "testimonials":
+        return "text-green-500";
+      case "contact":
         return "text-yellow-500";
       default:
         return "text-white";
     }
   };
 
-  type Section = "home" | "charts" | "emails";
+  type Section = "home" | "about" | "services" | "testimonials" | "contact";
 
   return (
     <>
-      <meta name="theme-color" content="bg-slate-950" />
-      <header className="bg-slate-950 text-white p-4 relative">
+      <meta name="theme-color" content={metaColor} />
+
+      <header className="fixed top-0 left-0 right-0 bg-slate-950 text-white p-4 z-50 backdrop-blur-md">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center">
-            <h1 className="text-1xl font-bold">CashClarity</h1>
+            <h1 className="text-xl font-bold">CashClarity</h1>
           </div>
 
           {/* Desktop Navigation */}
@@ -112,14 +117,14 @@ export default function Header() {
                   text: "Home",
                 },
                 {
-                  href: "#charts",
+                  href: "#about",
                   icon: <FaInfoCircle className="text-xl" />,
-                  text: "Charts",
+                  text: "Analytics",
                 },
                 {
-                  href: "#emails",
+                  href: "#contact",
                   icon: <BsMailbox2Flag className="text-xl" />,
-                  text: "Emails",
+                  text: "Email",
                 },
               ].map(({ href, icon, text }) => (
                 <a
@@ -144,28 +149,28 @@ export default function Header() {
       {/* Floating Menu Button */}
       {isMobile && (
         <button
-          className={`fixed top-5 right-7 text-2xl z-50 bg-opacity-80transition-transform duration-300 ${
+          className={`fixed top-5 right-7 text-2xl z-50 bg-opacity-80 transition-transform duration-300 ${
             isMenuVisible ? "rotate-90" : ""
           }`}
           onClick={toggleMenu}
         >
           {isMenuVisible ? (
-            <IoMdClose color="black" />
+            <IoMdClose color="white" />
           ) : (
-            <HiOutlineMenu className={getMenuIconColor()} />
+            <HiOutlineMenu color="white" />
           )}
         </button>
       )}
 
       {/* Modal Overlay */}
       <motion.div
-        className={`fixed inset-0 bg-white shadow-lg z-40 flex items-start p-10 ${
+        className={`fixed inset-0 bg-white shadow-lg z-40 flex items-start p-5 ${
           isMenuVisible ? "block" : "hidden"
         }`} // Add hidden class when menu is not visible
         initial={{ x: "100%", opacity: 0 }}
         animate={controls}
       >
-        <nav className="flex flex-col w-full">
+        <nav className="flex flex-col w-full mt-40">
           {[
             {
               href: "#home",
@@ -173,31 +178,40 @@ export default function Header() {
               icon: <HiHome className="text-3xl" />,
             },
             {
-              href: "#charts",
-              text: "Charts",
+              href: "#about",
+              text: "About",
               icon: <FaInfoCircle className="text-3xl" />,
             },
+
             {
-              href: "#emails",
-              text: "Emails",
+              href: "#contact",
+              text: "Email",
               icon: <BsMailbox2Flag className="text-3xl" />,
             },
           ].map(({ href, text, icon }) => (
             <motion.a
               key={href}
               href={href}
-              className="flex items-center justify-start w-full text-2xl font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 bg-clip-text text-transparent transition-transform duration-300 transform hover:scale-110 py-4"
-              style={{ color: "black" }} // Fallback color
-              onClick={handleMenuButtonClick} // Close the menu when a button is clicked
+              className="flex items-center justify-between w-full text-2xl font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 bg-clip-text text-transparent transition-transform duration-300 transform hover:scale-110 py-3"
+              style={{ color: "black" }}
+              onClick={handleMenuButtonClick}
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{
                 type: "tween",
-                duration: 0.2, // Duration of the animation
-                ease: "easeOut", // Easing function for a smooth end
+                duration: 0.2,
+                ease: "easeOut",
               }}
             >
-              {text}
+              <span
+                className="text-4xl
+                bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 bg-clip-text text-transparent transition-transform duration-300 transform hover:scale-10 py-3
+
+              "
+                style={{ fontWeight: "400" }}
+              >
+                {text}
+              </span>
             </motion.a>
           ))}
         </nav>

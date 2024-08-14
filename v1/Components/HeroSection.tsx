@@ -8,7 +8,8 @@ const FlipLink = ({ href, children }: { children: string; href: string }) => {
   return (
     <motion.a
       href={href}
-      className="relative block overflow-hidden whitespace-nowrap text-lg font-semibold uppercase sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl"
+      className="relative block overflow-hidden font-bold uppercase whitespace-nowrap
+                 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl"
       initial="initial"
       whileHover="hovered"
     >
@@ -58,18 +59,18 @@ const FlipLink = ({ href, children }: { children: string; href: string }) => {
   );
 };
 
-// Componente HeroSection que utiliza FlipLink
 export default function HeroSection() {
   return (
     <section
-      className="grid bg-slate-950 text-white h-screen gap-2 place-content-center px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 whitespace-nowrap text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl"
+      className="flex flex-col items-center justify-center bg-slate-950 text-white 
+      h-screen gap-4 px-4 sm:px-8 md:px-12 lg:px-16 xl:px-24 2xl:px-32"
       id="home"
     >
-      <FlipLink href="#">Secure transfers.</FlipLink>
-      <FlipLink href="#">Manage your funds.</FlipLink>
-      <FlipLink href="#">Reliable remittances.</FlipLink>
-      <FlipLink href="#">Control your account.</FlipLink>
-      <FlipLink href="#">Successful transactions.</FlipLink>
+      <FlipLink href="#">Secure transfers</FlipLink>
+      <FlipLink href="#">Manage your funds</FlipLink>
+      <FlipLink href="#">Reliable remittances</FlipLink>
+      <FlipLink href="#">Control your account</FlipLink>
+      <FlipLink href="#">Successful transactions</FlipLink>
     </section>
   );
 }

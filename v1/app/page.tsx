@@ -3,18 +3,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import {
-  fadeInUp,
-  slideInFromLeft,
-  bounceIn,
-  slideInFromRight,
-  rotateIn,
-  fadeOutBlur,
-} from "../Animations/animation";
+import { fadeInUp } from "../Animations/animation";
 
 import AboutSection from "@/Components/AboutSection";
-import ContactSection from "@/Components/ContactSection";
-import Features from "@/Components/Features";
+
 import Footer from "@/Components/Footer";
 import Header from "@/Components/Header";
 import HeroSection from "@/Components/HeroSection";
@@ -42,8 +34,6 @@ const Home = () => {
         <AboutSection />
 
         <ServicesSection />
-
-        <ContactSection />
       </main>
       <Footer />
     </div>

@@ -1,41 +1,136 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import HighchartsExporting from "highcharts/modules/exporting";
-import { FaBars } from "react-icons/fa";
 
-import {
-  groupByCategory,
-  groupByPeriod,
-  calculateStatistics,
-  getColorByType,
-  getSymbolByCategory,
-  filterDataByPeriod,
-} from "./dataUtils";
+import HighchartsMore from "highcharts/highcharts-more";
+import HighchartsHeatmap from "highcharts/modules/heatmap";
+import HighchartsAccessibility from "highcharts/modules/accessibility";
+import HighchartsExporting from "highcharts/modules/exporting";
+import HighchartsExportData from "highcharts/modules/export-data";
+import HighchartsDarkMode from "highcharts/themes/dark-unica";
+
+// Initialize Highcharts modules
 
 if (typeof Highcharts === "object") {
   HighchartsExporting(Highcharts);
+  HighchartsMore(Highcharts);
+  HighchartsHeatmap(Highcharts);
+  HighchartsAccessibility(Highcharts);
+  HighchartsExporting(Highcharts);
+  HighchartsExportData(Highcharts);
+  HighchartsDarkMode(Highcharts);
 }
 
-interface Transaction {
-  date: string;
-  value: number;
+interface DataPoint {
+  id: string;
+  account: Account;
+  created_at: string;
+  category?: string;
   type: string;
-  category: string;
+  amount: number;
+  status: string;
+  balance: number;
+  currency: string;
+  reference: string;
+  value_date: string;
+  description: string;
+  collected_at: string;
+  observations: any;
+  accounting_date: string;
+  internal_identification: string;
 }
 
-type ChartType = "grouped" | "scatter" | "histogram" | "line";
+interface Account {
+  id: string;
+  link: string;
+  institution: Institution;
+  created_at: string;
+  collected_at: string;
+  currency: string;
+  category: string;
+  type: string;
+  number: string;
+  agency: string;
+  bank_product_id: string;
+  internal_identification: string;
+  public_identification_name: string;
+  public_identification_value: string;
+  credit_data?: CreditData;
+  loan_data?: LoanData;
+  name: string;
+  balance: Balance;
+  last_accessed_at: string;
+  balance_type: string;
+}
 
-const AboutSection: React.FC = () => {
-  const [data, setData] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+interface Institution {
+  name: string;
+  type: string;
+}
+
+interface CreditData {
+  collected_at: string;
+  credit_limit: number;
+  cutting_date: string;
+  next_payment_date: string;
+  minimum_payment: number;
+  monthly_payment: number;
+  no_interest_payment: number;
+  last_payment_date: string;
+  last_period_balance: number;
+  interest_rate: number;
+}
+
+interface LoanData {
+  collected_at: string;
+  credit_limit: number;
+  cutting_day: string;
+  cutting_date: string;
+  next_payment_date: string;
+  limit_date: string;
+  limit_day: string;
+  monthly_payment: any;
+  no_interest_payment: any;
+  last_payment_date: string;
+  last_period_balance: any;
+  interest_rate: any;
+  principal: any;
+  loan_type: any;
+  payment_due_day: any;
+  outstanding_balance: any;
+  outstanding_principal: any;
+  number_of_installments_total: any;
+  number_of_installments_outstanding: any;
+  contract_start_date: any;
+  contract_number: any;
+  interest_rates: any;
+  fees: any;
+}
+
+interface Balance {
+  current: number;
+  available: number;
+}
+
+const DataVisualization: React.FC = () => {
+  const [data, setData] = useState<DataPoint[]>([]);
+  const [filteredData, setFilteredData] = useState<DataPoint[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedChart, setSelectedChart] = useState<ChartType>("scatter");
-  const [chartOptions, setChartOptions] = useState<Highcharts.Options>({});
-  const [stats, setStats] = useState<any>({});
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState<string>("month");
+  const [activeTab, setActiveTab] = useState<string>("scatter");
+  const [transactionType, setTransactionType] = useState<string | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [categories, setCategories] = useState<string[]>([
+    "Online Platforms & Leisure",
+    "Bills & Utilities",
+    "Personal Shopping",
+    "Home & Life",
+    "Credits & Loans",
+  ]);
+  const [types, setTypes] = useState<string[]>(["INFLOW", "OUTFLOW"]);
+  const [statuses, setStatuses] = useState<string[]>(["PENDING", "PROCESSED"]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,11 +138,11 @@ const AboutSection: React.FC = () => {
       setError(null);
       try {
         const response = await axios.post(
-          "https://sandbox.belvo.com/api/transactions/",
+          "https:sandbox.belvo.com/api/transactions/",
           {
             link: "f17e77e9-985c-4f0d-8359-3487bd44169e",
             date_from: "2024-02-05",
-            date_to: "2024-06-05",
+            date_to: "2024-05-05",
           },
           {
             headers: {
@@ -59,20 +154,10 @@ const AboutSection: React.FC = () => {
           }
         );
 
-        const fetchedData = response.data;
-        console.log("Response:", fetchedData);
-
-        const processedData = fetchedData.map((item: any) => ({
-          date: item.created_at,
-          value: item.amount,
-          type: item.type,
-          category: item.category,
-        }));
-
-        setData(processedData);
+        setData(response.data);
+        setFilteredData(response.data);
       } catch (error) {
-        setError("Error fetching data from API");
-        console.error("Error making request:", error);
+        setError("Error fetching data");
       } finally {
         setLoading(false);
       }
@@ -82,306 +167,318 @@ const AboutSection: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (data.length === 0) return;
+    // Apply filters to the fetched data
+    const applyFilters = () => {
+      const result = data.filter((item) => {
+        return (
+          (!category || item.category === category) &&
+          (!transactionType || item.type === transactionType) &&
+          (!status || item.status === status)
+        );
+      });
 
-    const filteredData = filterDataByPeriod(data, selectedPeriod);
+      setFilteredData(result);
+    };
 
-    // Ordena los datos por fecha
-    const sortedData = filteredData.sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+    applyFilters();
+  }, [transactionType, category, status, data]);
 
-    const statistics = calculateStatistics(filteredData);
-    setStats(statistics);
+  // Prepare data for scatter plot
+  const scatterData = filteredData.map((item) => ({
+    x: new Date(item.created_at).getTime(),
+    y: item.amount,
+    z: item.amount, // Size of marker
+    color: item.type === "INFLOW" ? "#7cb5ec" : "#f15c80", // Updated colors
+    name: item.category || "Unknown",
+  }));
 
-    // Datos para gráfico de dispersión
-    const scatterData = sortedData.map((transaction) => ({
-      x: new Date(transaction.date).getTime(),
-      y: transaction.value,
-      marker: {
-        radius: transaction.value / 1000,
-        fillColor: getColorByType(transaction.type),
-        symbol: getSymbolByCategory(transaction.category),
+  // Prepare data for histogram
+  const histogramData = filteredData.reduce(
+    (acc, item) => {
+      const period = new Date(item.created_at).toISOString().split("T")[0]; // Daily bins
+      if (!acc[period]) acc[period] = 0;
+      acc[period] += 1;
+      return acc;
+    },
+    {} as { [key: string]: number }
+  );
+
+  // Exclude today's date from histogram data
+  const today = new Date().toISOString().split("T")[0];
+  delete histogramData[today];
+
+  const histogramSeries = Object.keys(histogramData).map((key) => ({
+    name: key,
+    data: [histogramData[key]],
+  }));
+
+  // Create chart options
+  const scatterOptions: Highcharts.Options = {
+    chart: {
+      type: "bubble",
+      backgroundColor: "#ffffff", // Ensure background is white
+    },
+    title: {
+      text: "Scatter Plot",
+    },
+    xAxis: {
+      type: "datetime",
+      title: {
+        text: "Date",
       },
-      name: transaction.type,
-    }));
-
-    // Datos para gráfico de histograma
-    const periodGroupedData = groupByPeriod(filteredData, selectedPeriod);
-    const histogramData = Object.entries(periodGroupedData).map(
-      ([period, values]) => ({
-        name: period,
-        y: Array.isArray(values) ? values.length : 0,
-      })
-    );
-
-    // Datos para gráfico agrupado
-    const groupedData = groupByCategory(filteredData);
-    const groupedOptions: Highcharts.Options = {
-      chart: { type: "line" },
-      title: { text: "Transactions Over Time by Category" },
-      xAxis: {
-        type: "datetime",
-        title: { text: "Date" },
-        labels: {
-          format:
-            selectedPeriod === "day"
-              ? "{value:%Y-%m-%d}"
-              : selectedPeriod === "week"
-                ? "{value:%Y-W%U}"
-                : "{value:%Y-%m}",
-          style: { fontSize: "0.9rem" },
+    },
+    yAxis: {
+      title: {
+        text: "Amount",
+      },
+    },
+    series: [
+      {
+        data: scatterData,
+        type: "bubble",
+        name: "Transactions",
+        marker: {
+          fillOpacity: 0.7,
+          lineWidth: 0,
+          radius: 5,
         },
       },
-      yAxis: { title: { text: "Value" } },
-      series: Object.keys(groupedData).map((category) => ({
+    ],
+  };
+
+  const histogramOptions: Highcharts.Options = {
+    chart: {
+      type: "column",
+      backgroundColor: "#ffffff", // Ensure background is white
+    },
+    title: {
+      text: "Comparative Histogram",
+    },
+    xAxis: {
+      categories: Object.keys(histogramData),
+      title: {
+        text: "Date",
+      },
+    },
+    yAxis: {
+      title: {
+        text: "Frequency",
+      },
+    },
+    series: histogramSeries.map((series) => ({
+      ...series,
+      type: "column",
+    })),
+  };
+
+  const timeSeriesOptions: Highcharts.Options = {
+    chart: {
+      type: "line",
+      backgroundColor: "#ffffff", // Ensure background is white
+    },
+    title: {
+      text: "Time Series Analysis",
+    },
+    xAxis: {
+      type: "datetime",
+      title: {
+        text: "Date",
+      },
+    },
+    yAxis: {
+      title: {
+        text: "Amount",
+      },
+    },
+    series: [
+      {
+        data: scatterData.map((point) => [point.x, point.y]),
         type: "line",
-        name: category,
-        data: groupedData[category].map((item: any) => [
-          new Date(item[0]).getTime(),
-          item[1],
-        ]),
-      })),
-    };
-
-    // Opciones del gráfico de dispersión
-    const scatterOptions: Highcharts.Options = {
-      chart: { type: "scatter" },
-      title: { text: "Transaction Scatter Plot with Connecting Line" },
-      xAxis: {
-        type: "datetime",
-        title: { text: "Date" },
-        labels: {
-          format:
-            selectedPeriod === "day"
-              ? "{value:%Y-%m-%d}"
-              : selectedPeriod === "week"
-                ? "{value:%Y-W%U}"
-                : "{value:%Y-%m}",
-          style: { fontSize: "0.9rem" },
-        },
+        name: "Amount over Time",
       },
-      yAxis: {
-        title: { text: "Value" },
-        startOnTick: false,
-        endOnTick: false,
-        showLastLabel: true,
+    ],
+  };
+
+  const descriptiveStatsOptions: Highcharts.Options = {
+    chart: {
+      type: "pie",
+      backgroundColor: "#ffffff", // Ensure background is white
+    },
+    title: {
+      text: "Descriptive Statistics",
+    },
+    series: [
+      {
+        name: "Statistics",
+        type: "xrange", // Add the "type" property
+        data: [
+          {
+            name: "Mean",
+            y:
+              scatterData.length > 0
+                ? scatterData.reduce((acc, point) => acc + point.y, 0) /
+                  scatterData.length
+                : 0,
+          },
+          {
+            name: "Median",
+            y:
+              scatterData.length > 0
+                ? scatterData.map((point) => point.y).sort((a, b) => a - b)[
+                    Math.floor(scatterData.length / 2)
+                  ]
+                : 0,
+          },
+          {
+            name: "Mode",
+            y:
+              scatterData.length > 0
+                ? Object.values(
+                    scatterData.reduce(
+                      (acc, point) => {
+                        acc[point.y] = (acc[point.y] || 0) + 1;
+                        return acc;
+                      },
+                      {} as { [key: number]: number }
+                    )
+                  ).sort((a, b) => b - a)[0]
+                : 0,
+          },
+        ],
       },
-      series: [
-        {
-          type: "scatter",
-          data: scatterData,
-          name: "Transactions",
-        },
-        {
-          type: "line",
-          data: scatterData,
-          name: "Trend Line",
-          color: "blue",
-          dashStyle: "Solid",
-          enableMouseTracking: false,
-        },
-      ],
-    };
-
-    // Opciones del gráfico de histograma
-    const histogramOptions: Highcharts.Options = {
-      chart: { type: "column" },
-      title: { text: "Transactions Histogram by Period" },
-      xAxis: {
-        categories: Object.keys(periodGroupedData),
-        title: { text: "Period" },
-        labels: {
-          style: { fontSize: "0.9rem" },
-        },
-      },
-      yAxis: { title: { text: "Number of Transactions" } },
-      series: [
-        {
-          type: "column",
-          name: "Transactions",
-          data: histogramData,
-        },
-      ],
-    };
-
-    // Opciones del gráfico de líneas
-    const lineOptions: Highcharts.Options = {
-      chart: { type: "line" },
-      title: { text: "Transaction Trends Over Time" },
-      xAxis: {
-        type: "datetime",
-        title: { text: "Date" },
-        labels: {
-          format:
-            selectedPeriod === "day"
-              ? "{value:%Y-%m-%d}"
-              : selectedPeriod === "week"
-                ? "{value:%Y-W%U}"
-                : "{value:%Y-%m}",
-          style: { fontSize: "0.9rem" },
-        },
-      },
-      yAxis: { title: { text: "Value" } },
-      series: [
-        {
-          type: "line",
-          name: "Transaction Trends",
-          data: sortedData
-            .map((transaction) => [
-              new Date(transaction.date).getTime(),
-              transaction.value,
-            ])
-            .sort((a, b) => a[0] - b[0]),
-        },
-      ],
-    };
-
-    setStats(calculateStatistics(filteredData));
-
-    switch (selectedChart) {
-      case "scatter":
-        setChartOptions(scatterOptions);
-        break;
-      case "histogram":
-        setChartOptions(histogramOptions);
-        break;
-      case "grouped":
-        setChartOptions(groupedOptions);
-        break;
-      case "line":
-        setChartOptions(lineOptions);
-        break;
-      default:
-        setChartOptions(scatterOptions);
-    }
-  }, [data, selectedChart, selectedPeriod]);
-
-  if (loading) return <p className="mt-4 text-blue-500">Loading...</p>;
-  if (error) return <p className="mt-4 text-red-500">{error}</p>;
+    ],
+  };
 
   return (
-    <section
-      id="about"
-      className="min-h-screen bg-gray-100 flex items-center justify-center p-4"
-    >
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative flex items-center mb-4">
-          <h2 className="text-2xl font-bold text-center w-full">Data Charts</h2>
-        </div>
-        <div className="mb-4 flex flex-col md:flex-row items-center justify-between">
-          <div className="flex space-x-4 mb-4 md:mb-0">
+    <section id="about">
+      <div className="p-10">
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold mb-2">Transaction Filters</h1>
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+            <div className="flex-1">
+              <label className="block text-white">Choose</label>
+              <select
+                value={transactionType || ""}
+                onChange={(e) => setTransactionType(e.target.value)}
+                className="w-full bg-white text-black rounded p-2"
+              >
+                <option value="">All</option>
+                {types.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="block text-black">Category:</label>
+              <select
+                value={category || ""}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full bg-white text-black rounded p-2"
+              >
+                <option value="">All</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="block text-white">Status:</label>
+              <select
+                value={status || ""}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full bg-white text-black rounded p-2"
+              >
+                <option value="">All</option>
+                {statuses.map((stat) => (
+                  <option key={stat} value={stat}>
+                    {stat}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4 sm:grid-cols-4">
             <button
-              onClick={() => setSelectedChart("scatter")}
-              className={`py-2 px-4 rounded-lg ${
-                selectedChart === "scatter"
+              onClick={() => setActiveTab("scatter")}
+              className={`p-2 rounded ${
+                activeTab === "scatter"
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
+                  : "bg-gray-200  text-black"
               }`}
             >
-              Scatter
+              Scatter Plot
             </button>
             <button
-              onClick={() => setSelectedChart("histogram")}
-              className={`py-2 px-4 rounded-lg ${
-                selectedChart === "histogram"
+              onClick={() => setActiveTab("histogram")}
+              className={`p-2 rounded ${
+                activeTab === "histogram"
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
+                  : "bg-gray-200 text-black"
               }`}
             >
               Histogram
             </button>
             <button
-              onClick={() => setSelectedChart("grouped")}
-              className={`py-2 px-4 rounded-lg ${
-                selectedChart === "grouped"
+              onClick={() => setActiveTab("timeSeries")}
+              className={`p-2 rounded ${
+                activeTab === "timeSeries"
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
+                  : "bg-gray-200 text-black"
               }`}
             >
-              Grouped
+              Time Series
             </button>
             <button
-              onClick={() => setSelectedChart("line")}
-              className={`py-2 px-4 rounded-lg ${
-                selectedChart === "line"
+              onClick={() => setActiveTab("descriptiveStats")}
+              className={`p-2 rounded ${
+                activeTab === "descriptiveStats"
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
+                  : "bg-gray-200 text-black"
               }`}
             >
-              Line
+              Descriptive Stats
             </button>
           </div>
-          <select
-            className="p-2 border rounded-lg"
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-          >
-            <option value="day">Daily</option>
-            <option value="week">Weekly</option>
-            <option value="month">Monthly</option>
-          </select>
         </div>
-        <HighchartsReact highcharts={Highcharts} options={chartOptions} />
-        <div className="mt-6 p-6 bg-gray-50 shadow-lg rounded-lg">
-          <h3 className="text-2xl font-semibold mb-4 text-gray-800">
-            Statistics
-          </h3>
-          <table className="min-w-full divide-y divide-gray-300 bg-white rounded-lg">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="py-3 px-4 text-left text-gray-600 font-medium">
-                  Statistic
-                </th>
-                <th className="py-3 px-4 text-left text-gray-600 font-medium">
-                  Value
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              <tr>
-                <td className="py-2 px-4 text-gray-700">Mean</td>
-                <td className="py-2 px-4 text-gray-900">
-                  {stats.mean || "N/A"}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 text-gray-700">Median</td>
-                <td className="py-2 px-4 text-gray-900">
-                  {stats.median || "N/A"}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 text-gray-700">Mode</td>
-                <td className="py-2 px-4 text-gray-900">
-                  {stats.mode || "N/A"}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 text-gray-700">Standard Deviation</td>
-                <td className="py-2 px-4 text-gray-900">
-                  {stats.stdDev || "N/A"}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 text-gray-700">Variance</td>
-                <td className="py-2 px-4 text-gray-900">
-                  {stats.variance || "N/A"}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 text-gray-700">Range</td>
-                <td className="py-2 px-4 text-gray-900">
-                  {stats.range || "N/A"}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div>
+          {loading && <p>Fetching data, please wait a sec....</p>}
+          {error && <p className="text-red-500">{error}</p>}
+          {!loading && !error && (
+            <>
+              {activeTab === "scatter" && (
+                <HighchartsReact
+                  highcharts={Highcharts}
+                  options={scatterOptions}
+                />
+              )}
+              {activeTab === "histogram" && (
+                <HighchartsReact
+                  highcharts={Highcharts}
+                  options={histogramOptions}
+                />
+              )}
+              {activeTab === "timeSeries" && (
+                <HighchartsReact
+                  highcharts={Highcharts}
+                  options={timeSeriesOptions}
+                />
+              )}
+              {activeTab === "descriptiveStats" && (
+                <HighchartsReact
+                  highcharts={Highcharts}
+                  options={descriptiveStatsOptions}
+                />
+              )}
+            </>
+          )}
         </div>
-        ;
       </div>
     </section>
   );
 };
 
-export default AboutSection;
+export default DataVisualization;
