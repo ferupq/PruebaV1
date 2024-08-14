@@ -9,7 +9,7 @@ const FlipLink = ({ href, children }: { children: string; href: string }) => {
     <motion.a
       href={href}
       className="relative block overflow-hidden font-bold uppercase whitespace-nowrap
-                 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl"
+                 text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl"
       initial="initial"
       whileHover="hovered"
     >
@@ -63,7 +63,7 @@ export default function HeroSection() {
   return (
     <section
       className="flex flex-col items-center justify-center bg-slate-950 text-white 
-      h-screen gap-4 px-4 sm:px-8 md:px-12 lg:px-16 xl:px-24 2xl:px-32"
+      h-screen gap-4 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24"
       id="home"
     >
       <FlipLink href="#">Secure transfers</FlipLink>

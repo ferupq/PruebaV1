@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { FaTimes } from "react-icons/fa";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import app from "../app/firebase"; // Asegúrate de que la ruta sea correcta
 
 const EmailForm: React.FC = () => {
@@ -50,8 +57,16 @@ const EmailForm: React.FC = () => {
       const db = getFirestore(app);
 
       // Añadir el documento a la colección 'mail'
-      await addDoc(collection(db, "mail"), mailData);
-      console.log("Correo enviado a Firestore con éxito!");
+      const docRef = await addDoc(collection(db, "mail"), mailData);
+
+      // Call the cloud function to send email and track events
+      const functions = getFunctions(app);
+      const sendEmail = httpsCallable(functions, "sendEmail");
+      await sendEmail({ mailId: docRef.id });
+
+      console.log(
+        "Correo enviado a Firestore con éxito y seguimiento iniciado!"
+      );
     } catch (error) {
       console.error("Error al enviar correo a Firestore: ", error);
     }
@@ -68,7 +83,7 @@ const EmailForm: React.FC = () => {
       message: {
         subject: subject,
         text: message,
-        html: `<body>${message}</body>`,
+        html: `<body>${message}<img src="https://your-cloud-function-url/track/${toEmail}" alt="tracking pixel" /></body>`,
       },
       ...(file ? { fileName: file.name } : {}), // Solo añade fileName si file está definido
       ...(base64 ? { base64Data: base64 } : {}), // Solo añade base64Data si base64 está definido

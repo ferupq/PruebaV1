@@ -9,6 +9,8 @@ import HighchartsAccessibility from "highcharts/modules/accessibility";
 import HighchartsExporting from "highcharts/modules/exporting";
 import HighchartsExportData from "highcharts/modules/export-data";
 import HighchartsDarkMode from "highcharts/themes/dark-unica";
+import HighchartsXRange from "highcharts/modules/xrange";
+import dotenv from "dotenv";
 
 // Initialize Highcharts modules
 
@@ -20,6 +22,7 @@ if (typeof Highcharts === "object") {
   HighchartsExporting(Highcharts);
   HighchartsExportData(Highcharts);
   HighchartsDarkMode(Highcharts);
+  HighchartsXRange(Highcharts);
 }
 
 interface DataPoint {
@@ -122,6 +125,7 @@ const DataVisualization: React.FC = () => {
   const [transactionType, setTransactionType] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+
   const [categories, setCategories] = useState<string[]>([
     "Online Platforms & Leisure",
     "Bills & Utilities",
@@ -132,13 +136,17 @@ const DataVisualization: React.FC = () => {
   const [types, setTypes] = useState<string[]>(["INFLOW", "OUTFLOW"]);
   const [statuses, setStatuses] = useState<string[]>(["PENDING", "PROCESSED"]);
 
+  dotenv.config();
+
+  const mySecretKey = process.env.BELVO_KEY;
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await axios.post(
-          "https:sandbox.belvo.com/api/transactions/",
+          "https://sandbox.belvo.com/api/transactions/",
           {
             link: "f17e77e9-985c-4f0d-8359-3487bd44169e",
             date_from: "2024-02-05",
@@ -146,9 +154,7 @@ const DataVisualization: React.FC = () => {
           },
           {
             headers: {
-              Authorization: `Basic ${btoa(
-                "752e5970-4677-492f-a0df-bfb99236071e:1IzmPNWimznBcYu042gI#yHTS*42--zP7mt5wSqSpM5DwWe1ms6im6FR8q2oa3gR"
-              )}`,
+              Authorization: `Basic ${btoa(`${mySecretKey}:`)}`,
               "Content-Type": "application/json",
             },
           }
@@ -299,56 +305,6 @@ const DataVisualization: React.FC = () => {
     ],
   };
 
-  const descriptiveStatsOptions: Highcharts.Options = {
-    chart: {
-      type: "pie",
-      backgroundColor: "#ffffff", // Ensure background is white
-    },
-    title: {
-      text: "Descriptive Statistics",
-    },
-    series: [
-      {
-        name: "Statistics",
-        type: "xrange", // Add the "type" property
-        data: [
-          {
-            name: "Mean",
-            y:
-              scatterData.length > 0
-                ? scatterData.reduce((acc, point) => acc + point.y, 0) /
-                  scatterData.length
-                : 0,
-          },
-          {
-            name: "Median",
-            y:
-              scatterData.length > 0
-                ? scatterData.map((point) => point.y).sort((a, b) => a - b)[
-                    Math.floor(scatterData.length / 2)
-                  ]
-                : 0,
-          },
-          {
-            name: "Mode",
-            y:
-              scatterData.length > 0
-                ? Object.values(
-                    scatterData.reduce(
-                      (acc, point) => {
-                        acc[point.y] = (acc[point.y] || 0) + 1;
-                        return acc;
-                      },
-                      {} as { [key: number]: number }
-                    )
-                  ).sort((a, b) => b - a)[0]
-                : 0,
-          },
-        ],
-      },
-    ],
-  };
-
   return (
     <section id="about">
       <div className="p-10">
@@ -432,20 +388,10 @@ const DataVisualization: React.FC = () => {
             >
               Time Series
             </button>
-            <button
-              onClick={() => setActiveTab("descriptiveStats")}
-              className={`p-2 rounded ${
-                activeTab === "descriptiveStats"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-black"
-              }`}
-            >
-              Descriptive Stats
-            </button>
           </div>
         </div>
         <div>
-          {loading && <p>Fetching data, please wait a sec....</p>}
+          {loading && <p>Fetching data, please wait a sec.... </p>}
           {error && <p className="text-red-500">{error}</p>}
           {!loading && !error && (
             <>
@@ -465,12 +411,6 @@ const DataVisualization: React.FC = () => {
                 <HighchartsReact
                   highcharts={Highcharts}
                   options={timeSeriesOptions}
-                />
-              )}
-              {activeTab === "descriptiveStats" && (
-                <HighchartsReact
-                  highcharts={Highcharts}
-                  options={descriptiveStatsOptions}
                 />
               )}
             </>
